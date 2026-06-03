@@ -1,1 +1,8 @@
 .DS_Store
+build/
+.sui/
+node_modules/
+.env
+*.swp
+*.swo
+*~
