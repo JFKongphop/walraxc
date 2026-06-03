@@ -1,0 +1,15 @@
+[package]
+name = "walraxc"
+version = "0.0.1"
+edition = "2024.beta"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet" }
+
+[addresses]
+walraxc = "0x0"
+
+[dev]
+# Formatting configuration
+indent-size = 2
+max-line-length = 100
