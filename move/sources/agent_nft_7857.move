@@ -360,18 +360,20 @@ module walraxc::agent_nft {
   }
 
   //
-  // Test-only functions
+  // Public constructor for IntelligentData
   //
-  #[test_only]
-  public fun test_init(ctx: &mut TxContext) {
-    init(ctx);
-  }
-
-  #[test_only]
   public fun new_intelligent_data(description: String, hash: vector<u8>): IntelligentData {
     IntelligentData {
       data_description: description,
       data_hash: hash,
     }
+  }
+
+  //
+  // Test-only functions
+  //
+  #[test_only]
+  public fun test_init(ctx: &mut TxContext) {
+    init(ctx);
   }
 }
