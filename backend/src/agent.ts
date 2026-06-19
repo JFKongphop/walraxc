@@ -18,7 +18,7 @@ Complete port from agent.rs:
 - WalraxcAnalyzerRemote (MemWal RAG tool)
 */
 
-import { OpenAiClient } from "./openai-withmemwal-client.ts";
+import { OpenAiWithMemwalClient } from "./openai-withmemwal-client.ts";
 import { WalrusClient, type RagResult } from "./walrus-client.ts";
 import { SuiMoveClient } from "./sui-client.ts";
 import type { Tool, ToolSignal } from "./tools.ts";
@@ -1577,9 +1577,9 @@ No other module can override this decision.`;
 
 export class WalraxcAnalyzer implements Tool {
   private walrus: WalrusClient;
-  private compute: OpenAiClient;
+  private compute: OpenAiWithMemwalClient;
 
-  constructor(walrus: WalrusClient, compute: OpenAiClient) {
+  constructor(walrus: WalrusClient, compute: OpenAiWithMemwalClient) {
     this.walrus = walrus;
     this.compute = compute;
   }
@@ -1653,9 +1653,9 @@ export class WalraxcAnalyzer implements Tool {
 
 export class WalraxcAnalyzerRemote implements Tool {
   private walrus: WalrusClient;
-  private compute: OpenAiClient;
+  private compute: OpenAiWithMemwalClient;
 
-  constructor(walrus: WalrusClient, compute: OpenAiClient) {
+  constructor(walrus: WalrusClient, compute: OpenAiWithMemwalClient) {
     this.walrus = walrus;
     this.compute = compute;
   }
@@ -1702,7 +1702,7 @@ export class WalraxcAnalyzerRemote implements Tool {
 export class AgentCore {
   tools: ToolRegistry = new ToolRegistry();
   memory: MemoryLayer;
-  compute: OpenAiClient;
+  compute: OpenAiWithMemwalClient;
   suiMove: SuiMoveClient | null = null;
   private progressTx: ((msg: string) => void) | null = null;
   private taskId: string | null = null;
@@ -1712,8 +1712,8 @@ export class AgentCore {
   private mintedNftTx: string = "";
 
   constructor(
-    walrusOrCompute: WalrusClient | OpenAiClient | null,
-    compute?: OpenAiClient,
+    walrusOrCompute: WalrusClient | OpenAiWithMemwalClient | null,
+    compute?: OpenAiWithMemwalClient,
   ) {
     if (walrusOrCompute instanceof WalrusClient) {
       console.log("\x1b[33m[*]\x1b[0m Initializing WALRAXC Multi-Agent Framework (Walrus + MemWal + OpenAI)...");
@@ -1725,10 +1725,10 @@ export class AgentCore {
     // Fallback: OpenAI only
     console.log("\x1b[33m[*]\x1b[0m Initializing WALRAXC Multi-Agent Framework (OpenAI only)...");
     this.memory = MemoryLayer.empty();
-    this.compute = (walrusOrCompute as OpenAiClient) || compute!;
+    this.compute = (walrusOrCompute as OpenAiWithMemwalClient) || compute!;
   }
 
-  static newRemote(compute: OpenAiClient): AgentCore {
+  static newRemote(compute: OpenAiWithMemwalClient): AgentCore {
     console.log("\x1b[33m[*]\x1b[0m Initializing WALRAXC Multi-Agent Framework (OpenAI only)...");
     const core = new (AgentCore as any)(null, compute);
     core.memory = MemoryLayer.empty();

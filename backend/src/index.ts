@@ -5,12 +5,12 @@ WALRAXC — RAG-based smart contract vulnerability analysis with MemWal + OpenAI
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { OpenAiClient } from "./openai-withmemwal-client.ts";
+import { OpenAiWithMemwalClient } from "./openai-withmemwal-client.ts";
 import { WalrusClient, type RagResult } from "./walrus-client.ts";
 
 // ─── Re-exports ───────────────────────────────────────────────────────────────
 
-export { OpenAiClient } from "./openai-withmemwal-client.ts";
+export { OpenAiWithMemwalClient } from "./openai-withmemwal-client.ts";
 export { WalrusClient } from "./walrus-client.ts";
 export type { RagResult } from "./walrus-client.ts";
 export { SuiMoveClient } from "./sui-client.ts";
@@ -81,8 +81,8 @@ export function loadEnv(): void {
 }
 
 /** Build OpenAI client (LLM reasoning + embeddings). */
-export function buildOpenAiClient(): OpenAiClient {
-  return OpenAiClient.fromEnv();
+export function buildOpenAiClient(): OpenAiWithMemwalClient {
+  return OpenAiWithMemwalClient.fromEnv();
 }
 
 // ─── Analysis workflow ────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export function buildOpenAiClient(): OpenAiClient {
 /** Analyze contract using MemWal semantic recall. */
 export async function analyzeMemWal(
   walrus: WalrusClient,
-  compute: OpenAiClient,
+  compute: OpenAiWithMemwalClient,
   contract: string,
 ): Promise<string> {
   console.log("[WalraxcAnalyzer]   Recalling exploit patterns from MemWal (walraxc/defi-cases)...");

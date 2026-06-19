@@ -11,16 +11,16 @@ import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { withMemWal } from "@mysten-incubation/memwal/ai";
 
-export class OpenAiClient {
+export class OpenAiWithMemwalClient {
   private model: ReturnType<typeof openai>;
   private modelName: string;
 
   /** Create from env vars. */
-  static fromEnv(): OpenAiClient {
+  static fromEnv(): OpenAiWithMemwalClient {
     const apiKey = process.env["OPENAI_API_KEY"];
     if (!apiKey) throw new Error("OPENAI_API_KEY not set in .env");
     const model = process.env["OPENAI_MODEL"] ?? "gpt-4o-mini";
-    return new OpenAiClient(apiKey, model);
+    return new OpenAiWithMemwalClient(apiKey, model);
   }
 
   constructor(apiKey: string, modelName: string) {
