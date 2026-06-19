@@ -1,0 +1,50 @@
+node_modules/
+reports/
+.env
+.env.example
+.git/
+dist/
+*.md
+.DS_Store
+
+bun -e "
+import { SuiMoveClient } from './src/sui-client.ts';
+import { WalrusClient } from './src/walrus-client.ts';
+import 'dotenv/config';
+
+const c = SuiMoveClient.fromEnv()!;
+const w = WalrusClient.fromEnv();
+const nftId = process.env.SUI_AGENT_NFT_ID!;
+
+const entries = await c.getAgentData(nftId);
+console.log('Total entries:', entries.length, '\n');
+
+for (let i = 0; i < entries.length; i++) {
+  const e = entries[i];
+  const blobId = new TextDecoder().decode(e.hash);
+  console.log('Entry', i + ':', e.description);
+  console.log('  Raw blobId:', blobId);
+  const clean = blobId.replace(/[^a-zA-Z0-9_-]/g, '');
+  if (clean.length > 10) {
+    try {
+      const j = await w.getReport(clean);
+      const p = JSON.parse(j);
+      console.log('  ✅ LIVE:', p.contract_name, '|', p.vulnerability_type, '|', p.risk_level, '|', p.confidence +'%');
+    } catch (e: any) { console.log('  ❌', e.message?.slice(0, 80)); }
+  } else { console.log('  ⬜ placeholder'); }
+  console.log();
+}
+"
+Total entries: 3
+
+Entry 0: Session: DeFiVault — Reentrancy (83%)
+  Raw blobId: OFDLfZjp-g0m9tHFAbN4ABBK11DKFsTlekN2IziKjhg
+  ✅ LIVE: DeFiVault | Reentrancy | High | 82%
+
+Entry 1: Initial setup
+  Raw blobId:
+  ⬜ placeholder
+
+Entry 2: Session: DeFiVault — Reentrancy (85%)
+  Raw blobId: jqUKqihDffdMAjWn1LusBuFAFf8-Kvge3TRQ2-CrMCs
+  ✅ LIVE: DeFiVault | Reentrancy | High | 85%

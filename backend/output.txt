@@ -1,0 +1,175 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║  RAXC Autonomous Exploit Intelligence Core — Sovereign Execution Mode    ║
+║         Deterministic Exploit Execution + Verification Framework         ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+[*] Connecting to Qdrant...
+[Qdrant]   Connected — 782 total points across 2 collections
+[✓] Qdrant online — 782 total exploit vectors loaded
+
+[*] Initializing RAXC Multi-Agent Framework (Qdrant + OpenAI + Stylus)...
+[*] Registering tools to ToolRegistry...
+[✓] Registered tool: RaxcAnalyzer
+[✓] Registered tool: RaxcAnalyzerRemote
+[✓] Registered tool: GasAnalyzerTool
+[✓] Registered tool: PatternDetectorTool
+[✓] Registered tool: FlashLoanTool
+[✓] Registered tool: AccessControlTool
+[✓] Registered tool: ReflectionTool
+[✓] Registered tool: MemoryTool
+    (no --file given — using built-in DeFiVault demo contract)
+
+[*] Initiating autonomous exploit analysis — 13-phase verification pipeline...
+
+
+[RAXC]           Phase 1: Starting autonomous security analysis...
+[🧠 Memory]      Loaded 32 past audit sessions from Arbitrum Sepolia AgentMemory:
+    [0] DeFiVault — Access Control (Critical, 85%)
+    [1] DeFiVault — Access Control (Critical, 85%)
+    [2] DeFiVault — Reentrancy (High, 80%)
+    [3] DeFiVault — Access Control (Critical, 85%)
+    [4] DeFiVault — Access Control (Critical, 85%)
+    [5] DeFiVault — Access Control (Critical, 85%)
+    [6] DeFiVault — Access Control (Critical, 85%)
+    [7] DeFiVault — Access Control (Critical, 85%)
+    [8] DeFiVault — Access Control (Critical, 85%)
+    [9] DeFiVault — Access Control (Critical, 85%)
+    [10] DeFiVault — Access Control (Critical, 85%)
+    [11] DeFiVault — Access Control (Critical, 85%)
+    [12] DeFiVault — Access Control (Critical, 85%)
+    [13] DeFiVault — Reentrancy (High, 80%)
+    [14] DeFiVault — Access Control (Critical, 85%)
+    [15] DeFiVault — Reentrancy (High, 82%)
+    [16] pragma — Reentrancy (High, 82%)
+    [17] pragma — Reentrancy (High, 80%)
+    [18] DeFiVault — Reentrancy (High, 80%)
+    [19] Foo — Reentrancy (High, 100%)
+    [20] pragma — Reentrancy (High, 82%)
+    [21] Token — Access Control (Critical, 85%)
+    [22] ExampleVaultSecurity — Access Control (Critical, 85%)
+    [23] ExampleVaultSecurity — Access Control (Critical, 85%)
+    [24] pragma — Reentrancy (High, 82%)
+    [25] ExampleVaultSecurity — Access Control (Critical, 85%)
+    [26] ExampleVaultSecurity — Access Control (Critical, 85%)
+    [27] pragma — Reentrancy (High, 80%)
+    [28] pragma — Reentrancy (High, 82%)
+    [29] pragma — Reentrancy (High, 82%)
+    [30] pragma — Reentrancy (High, 82%)
+    [31] DeFiVault — Reentrancy (High, 82%)
+[RAXC]           Phase 2: Dispatching tools...
+[*] Executing 8 tools in parallel...
+[RaxcAnalyzer]   Embedding contract code...
+[RaxcAnalyzer]   Embedding contract code...
+[RaxcAnalyzer]   Querying Qdrant (defi_cases + defi_protocols)...
+[RaxcAnalyzer]   Querying Qdrant (defi_cases + defi_protocols)...
+[Qdrant]         Searched 2 collections → 10 total hits, returning 5
+[RaxcAnalyzer]   Top similarity: 0.666
+[RaxcAnalyzer]   Building RAG context...
+[LLM]            Sending for analysis...
+[Qdrant]         Searched 2 collections → 10 total hits, returning 5
+[RaxcAnalyzer]   Top similarity: 0.666
+[RaxcAnalyzer]   Building RAG context...
+[LLM]            Sending for analysis...
+[RAXC]           Raw signals: 8
+[RAXC]           Phase 3: Normalizing tool signals...
+[RAXC]           Normalized signals: 4 (filtered from 8)
+[RAXC]           Phase 4: Multi-agent reasoning layer...
+[RAXC]           Phase 5: Running consensus engine...
+[*] Consensus reached: Reentrancy (confidence: 82.5%, 2 of 4 agents agree)
+[RAXC]           Phase 6: Calculating risk intelligence score...
+    ├─ Risk Score: 71.88%
+    ├─ Exploitability: 75.00%
+    └─ Classification: HIGH RISK
+[RAXC]           Phase 7: Simulating attack execution path...
+    ├─ Execution Path: 8 steps
+    ├─ State Transitions: 5 tracked
+    ├─ Attacker Type: Smart Contract Exploiter
+    └─ Exploit Status: CONFIRMED (95% success probability)
+[RAXC]           Phase 8: Constructing deterministic attack graph...
+    ├─ Graph Nodes: 5
+    ├─ Graph Edges: 4
+    └─ Root Node: Reentrancy
+[RAXC]           Phase 9: Verifying simulation consistency...
+    ├─ Simulation Valid: true
+    ├─ Graph Consistent: true
+    ├─ State Correct: true
+    ├─ Tool Conflict: true
+    └─ Consistency Score: 80.00%
+[RAXC]           Phase 10: Making final decision (single authority)...
+    ├─ Final Verdict: MEDIUM_RISK
+    ├─ Final Confidence: 100.00%
+    ├─ Final Attack Probability: 78.00%
+    └─ Final Risk Score: 71.88%
+[RAXC]           Phase 11: Generating verifiable attestation...
+    ├─ Attestation Replay ID: 0x9F2CE978
+    ├─ Execution Trace Hash: 0x60448E86
+    └─ Timestamp: 2026-06-18T17:19:05.545Z
+[ReflectionTool] Compute self-critique...
+    ├─ Verdict: CONFIRMED
+    └─ Refined Confidence: 70%
+[Compute]        Generating LLM explanation...
+[RAXC]           Phase 12: Generating audit report...
+[Memory]         Pushed             | TX: 0x06347e282c2e2ff2b3b081cdd9f6be3c9c62f5151cbf0cd9d24c2a31459ead4a
+[AuditReport]    Task #32 created   | TX: 0x29aeb3f5ccab991cf49c431edec6c8378974ee491e62047953f09fc94232da74
+[AuditReport]    Task #32 finalized | TX: 0xb06b704fbdfced842fb6d80bf743fc90926e7ee44ea98c6566fa29924b620cc6
+
+╔════════════════════════════════════════════════════════════════════════╗
+║                      ON-CHAIN PROOF — Arbitrum Sepolia                 ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+  AgentMemory (JSON): 0x06347e282c2e2ff2b3b081cdd9f6be3c9c62f5151cbf0cd9d24c2a31459ead4a
+  AuditReport Task #: 32
+  AgentMemory TX:     https://sepolia.arbiscan.io/tx/0x06347e282c2e2ff2b3b081cdd9f6be3c9c62f5151cbf0cd9d24c2a31459ead4a
+  AuditReport TX:     https://sepolia.arbiscan.io/tx/0xb06b704fbdfced842fb6d80bf743fc90926e7ee44ea98c6566fa29924b620cc6
+
+✅ Report saved to: /Users/kongphopkingpet/Documents/Github/raxclaw-arbitrum/backend/reports/RAXC_DeFiVault_Reentrancy_20260618171908._83pct.md
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                  AUTONOMOUS EXPLOIT INTELLIGENCE RESULT                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📊 BASIC DECISION:
+  Vulnerability Found:  true
+  Risk Level:          High
+  Vulnerability Type:  Reentrancy
+  Confidence:          82.5%
+  Tool Signals:        4
+
+📈 INTELLIGENCE REPORT:
+  Risk Score:          71.9%
+  Exploitability:      75.0%
+  Attack Likelihood:   78.0%
+
+🧪 ATTACK SIMULATION:
+  Execution Path:      8 steps
+  Attacker Type:       Smart Contract Exploiter
+  Success Prob:        95.0%
+
+📊 ATTACK MAP:
+  Graph Nodes:         5
+  Root Node:           Reentrancy
+
+🎯 FINAL DECISION:
+  Final Verdict:       MEDIUM_RISK
+  Final Confidence:    100.00%
+  Final Risk Score:    71.88%
+
+🔐 ATTESTATION:
+  Replay ID:           0x9F2CE978
+  Trace Hash:          0x60448E86
+
+╔════════════════════════════════════════════════════════════════════════╗
+║                      ON-CHAIN PROOF — Arbitrum Sepolia                 ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+  AgentMemory (JSON): 0x06347e282c2e2ff2b3b081cdd9f6be3c9c62f5151cbf0cd9d24c2a31459ead4a
+  AuditReport Task #: 32
+  AgentMemory TX:     https://sepolia.arbiscan.io/tx/0x06347e282c2e2ff2b3b081cdd9f6be3c9c62f5151cbf0cd9d24c2a31459ead4a
+  AuditReport TX:     https://sepolia.arbiscan.io/tx/0xb06b704fbdfced842fb6d80bf743fc90926e7ee44ea98c6566fa29924b620cc6
+
+  RAXCLAW REPORT:     https://raxclaw-arbitrum.vercel.app/tx-report/0xb06b704fbdfced842fb6d80bf743fc90926e7ee44ea98c6566fa29924b620cc6
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║        AUTONOMOUS ENGINE — SOVEREIGN EXECUTION COMPLETE                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
