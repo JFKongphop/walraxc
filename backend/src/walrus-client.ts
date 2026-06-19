@@ -79,7 +79,7 @@ export class WalrusClient {
   // ═══ RAG — Exploit Pattern Search (replaces Qdrant) ═════════════════════════
 
   async recallRag(query: string, topK = 5): Promise<RagResult[]> {
-    const m = this.ns("walraxc/defi-cases");
+    const m = this.ns("raxc/defi-cases");
     const r = await m.recall({ query });
     return (r.results || []).slice(0, topK).map((x: any) => ({
       text: x.text || "",
@@ -98,7 +98,7 @@ export class WalrusClient {
   async loadSessions(limit = 30): Promise<any[]> {
     // Track manifest blob ID in local file (Walrus has no naming)
     try {
-      const manifestId = require("fs").readFileSync(".walraxc-manifest", "utf-8").trim();
+      const manifestId = require("fs").readFileSync(".raxc-manifest", "utf-8").trim();
       const text = await this.getReport(manifestId);
       const ids: string[] = JSON.parse(text);
       const sessions: any[] = [];
@@ -114,7 +114,7 @@ export class WalrusClient {
     const fs = require("fs");
     let manifestId = "";
     let ids: string[] = [];
-    try { manifestId = fs.readFileSync(".walraxc-manifest", "utf-8").trim(); } catch {}
+    try { manifestId = fs.readFileSync(".raxc-manifest", "utf-8").trim(); } catch {}
     try { ids = JSON.parse(await this.getReport(manifestId)); } catch {}
     ids.push(sessionBlobId);
     const url = "https://publisher.walrus-testnet.walrus.space/v1/blobs?epochs=10";
@@ -122,7 +122,7 @@ export class WalrusClient {
     if (res.ok) {
       const json: any = await res.json();
       const newId = json.newlyCreated?.blobObject?.blobId || json.blobId;
-      fs.writeFileSync(".walraxc-manifest", newId);
+      fs.writeFileSync(".raxc-manifest", newId);
     }
   }
 
@@ -193,7 +193,7 @@ export class WalrusClient {
 
   async health(): Promise<boolean> {
     try {
-      await this.ns("walraxc/defi-cases").health();
+      await this.ns("raxc/defi-cases").health();
       return true;
     } catch { return false; }
   }
