@@ -1,0 +1,21 @@
+{
+  "name": "@walraxc/memwal-rag",
+  "version": "0.1.0",
+  "description": "Semantic exploit pattern search via MemWal — 781 DeFi exploit patterns, zero embedding cost",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "files": ["src", "README.md"],
+  "keywords": ["walrus", "memwal", "rag", "exploit", "security", "semantic-search"],
+  "license": "MIT",
+  "dependencies": {
+    "@mysten-incubation/memwal": "^0.0.7"
+  },
+  "peerDependencies": {
+    "@mysten-incubation/memwal": "^0.0.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
