@@ -680,17 +680,37 @@ export class AttackSimulationEngine {
 
   private static simulateAccessControl(evidence: string, exploitability: number): AttackSimulation {
     const executionPath = [
-      "1. Attacker identifies unprotected privileged function",
-      "2. Call sensitive function without authorization check",
-      "3. Gain control of contract parameters or ownership",
-      "4. Execute privileged operations (e.g., mint, transfer ownership)",
+      "1. Attacker identifies functions missing access control modifiers",
+      "2. Scan for setFee/drain/transferOwnership without onlyOwner check",
+      "3. Call sensitive function directly from attacker address",
+      "4. No require(msg.sender == owner) gate — call succeeds",
+      "5. Attacker modifies critical state (ownership, fees, balances)",
+      "6. Escalate privilege: become the new owner/admin",
+      "7. Drain funds or lock contract with escalated privileges",
+      "8. Attack completes: full contract compromise achieved",
+    ];
+
+    const executionSteps: ExecutionStep[] = [
+      { stepNumber:1,description:"Attacker scans for unprotected functions",graphNodeId:"WalraxcAnalyzer",triggeredBy:"VulnerabilityDetection",outputsTo:"AccessControl" },
+      { stepNumber:2,description:"Identify missing access modifiers",graphNodeId:"AccessControl",triggeredBy:"WalraxcAnalyzer",outputsTo:"PrivilegeEscalation" },
+      { stepNumber:3,description:"Call sensitive function directly",graphNodeId:"PrivilegeEscalation",triggeredBy:"AccessControl",outputsTo:"UnprotectedFunction" },
+      { stepNumber:4,description:"No ownership check — call succeeds",graphNodeId:"UnprotectedFunction",triggeredBy:"PrivilegeEscalation",outputsTo:"StateOverride" },
+      { stepNumber:5,description:"Attacker modifies critical state",graphNodeId:"StateOverride",triggeredBy:"UnprotectedFunction",outputsTo:"OwnershipCompromised" },
+      { stepNumber:6,description:"Escalate to admin/owner role",graphNodeId:"OwnershipCompromised",triggeredBy:"StateOverride",outputsTo:"Takeover" },
+      { stepNumber:7,description:"Drain funds or lock contract",graphNodeId:"Takeover",triggeredBy:"OwnershipCompromised",outputsTo:"FundsDrained" },
+      { stepNumber:8,description:"Attack completes — full compromise",graphNodeId:"FundsDrained",triggeredBy:"Takeover",outputsTo:"Complete" },
+    ];
+
+    const stateTransitions: StateTransition[] = [
+      { step:0,description:"Initial state",stateValue:"owner = legitimate_address, isAdmin[attacker] = false",graphNodeId:"WalraxcAnalyzer",triggeringNode:"VulnerabilityDetection",resultingNode:"AccessControl",linkedGraphPath:["WalraxcAnalyzer","AccessControl"] },
+      { step:3,description:"Unauthorized call attempted",stateValue:"owner = legitimate_address (unchanged), function called by attacker",graphNodeId:"PrivilegeEscalation",triggeringNode:"AccessControl",resultingNode:"UnprotectedFunction",linkedGraphPath:["AccessControl","PrivilegeEscalation","UnprotectedFunction"] },
+      { step:4,description:"No access gate — call succeeds",stateValue:"owner unchanged but state modified by attacker",graphNodeId:"UnprotectedFunction",triggeringNode:"PrivilegeEscalation",resultingNode:"StateOverride",linkedGraphPath:["PrivilegeEscalation","UnprotectedFunction","StateOverride"] },
+      { step:5,description:"Critical state overwritten",stateValue:"fee_percent = attacker_value, admin = attacker_address",graphNodeId:"StateOverride",triggeringNode:"UnprotectedFunction",resultingNode:"OwnershipCompromised",linkedGraphPath:["UnprotectedFunction","StateOverride","OwnershipCompromised"] },
+      { step:7,description:"Funds drained by escalated attacker",stateValue:"contract_balance = 0, owner = attacker_address (full compromise)",graphNodeId:"FundsDrained",triggeringNode:"OwnershipCompromised",resultingNode:"Complete",linkedGraphPath:["OwnershipCompromised","Takeover","FundsDrained","Complete"] },
     ];
     const successProb = Math.min(exploitability * 100 + 10, 100);
     return {
-      executionPath, executionSteps: [], stateTransitions: [
-        { step:0,description:"Initial state",stateValue:"owner = legitimate_address",graphNodeId:"WalraxcAnalyzer",triggeringNode:"VulnerabilityDetection",resultingNode:"AccessControl",linkedGraphPath:["WalraxcAnalyzer","AccessControl"] },
-        { step:2,description:"Unauthorized call succeeds",stateValue:"owner = attacker_address (compromised)",graphNodeId:"AccessControl",triggeringNode:"UnprotectedFunction",resultingNode:"OwnershipCompromised",linkedGraphPath:["AccessControl","OwnershipCompromised"] },
-      ],
+      executionPath, executionSteps, stateTransitions,
       attackerModel: {
         attackerType: "Privilege Escalation Attacker",
         strategy: ["Identify functions missing access modifiers","Call privileged functions directly","Take over contract control"],
@@ -727,9 +747,17 @@ export class AttackSimulationEngine {
       "4. Repay flash loan within same transaction",
       "5. Extract profit from price manipulation",
     ];
+
+    const executionSteps: ExecutionStep[] = [
+      { stepNumber:1,description:"Attacker takes out flash loan",graphNodeId:"WalraxcAnalyzer",triggeredBy:"VulnerabilityDetection",outputsTo:"FlashLoan" },
+      { stepNumber:2,description:"Borrowed capital manipulates oracle",graphNodeId:"FlashLoan",triggeredBy:"WalraxcAnalyzer",outputsTo:"PriceManipulation" },
+      { stepNumber:3,description:"Execute arbitrage at fake price",graphNodeId:"PriceManipulation",triggeredBy:"FlashLoan",outputsTo:"Arbitrage" },
+      { stepNumber:4,description:"Repay flash loan in same tx",graphNodeId:"Arbitrage",triggeredBy:"PriceManipulation",outputsTo:"RepayLoan" },
+      { stepNumber:5,description:"Profit extracted — attack complete",graphNodeId:"RepayLoan",triggeredBy:"Arbitrage",outputsTo:"ProfitExtracted" },
+    ];
     const successProb = Math.min(exploitability * 100, 100);
     return {
-      executionPath, executionSteps: [], stateTransitions: [
+      executionPath, executionSteps, stateTransitions: [
         { step:0,description:"Initial state",stateValue:"price = $1000, attacker_balance = 0",graphNodeId:"WalraxcAnalyzer",triggeringNode:"VulnerabilityDetection",resultingNode:"FlashLoan",linkedGraphPath:["WalraxcAnalyzer","FlashLoan"] },
         { step:2,description:"Price manipulated",stateValue:"price = $500 (manipulated), borrowed = 1M tokens",graphNodeId:"FlashLoan",triggeringNode:"BorrowCapital",resultingNode:"PriceManipulation",linkedGraphPath:["FlashLoan","PriceManipulation"] },
         { step:4,description:"Loan repaid, profit extracted",stateValue:"price = $1000 (restored), attacker_profit = $100K",graphNodeId:"PriceManipulation",triggeringNode:"RepayLoan",resultingNode:"ProfitExtracted",linkedGraphPath:["PriceManipulation","ProfitExtracted"] },
@@ -771,7 +799,12 @@ export class AttackSimulationEngine {
         "3. Execute attack transaction",
         "4. Exploit contract weakness",
       ],
-      executionSteps: [],
+      executionSteps: [
+        { stepNumber:1,description:`Attacker identifies ${vulnerability} pattern`,graphNodeId:"WalraxcAnalyzer",triggeredBy:"VulnerabilityDetection",outputsTo:vulnerability },
+        { stepNumber:2,description:"Craft malicious exploit transaction",graphNodeId:vulnerability,triggeredBy:"WalraxcAnalyzer",outputsTo:"ExploitExecution" },
+        { stepNumber:3,description:"Execute exploit against contract",graphNodeId:"ExploitExecution",triggeredBy:vulnerability,outputsTo:"StateCompromised" },
+        { stepNumber:4,description:"Attack completes — state compromised",graphNodeId:"StateCompromised",triggeredBy:"ExploitExecution",outputsTo:"Complete" },
+      ],
       stateTransitions: [
         { step:0,description:"Initial state",stateValue:"contract_state = normal",graphNodeId:"WalraxcAnalyzer",triggeringNode:"VulnerabilityDetection",resultingNode:vulnerability,linkedGraphPath:["WalraxcAnalyzer",vulnerability] },
         { step:3,description:"Attack executed",stateValue:`contract_state = compromised via ${vulnerability}`,graphNodeId:vulnerability,triggeringNode:"ExploitExecution",resultingNode:"StateCompromised",linkedGraphPath:[vulnerability,"StateCompromised"] },
@@ -917,7 +950,7 @@ export class MemoryLayer {
     }
   }
 
-  async retrieveSimilar(contract: string): Promise<string[]> {
+  async retrieveSimilar(contract: string, nftTrailBlobIds: string[] = []): Promise<string[]> {
     if (this.cache !== null) return this.cache;
 
     const walrus = this.walrus;
@@ -927,13 +960,13 @@ export class MemoryLayer {
     }
 
     try {
-      const sessions = await walrus.loadSessions();
+      const sessions = await walrus.loadSessions(30, nftTrailBlobIds);
       if (sessions.length === 0) {
-        console.log("\x1b[90m[🧠 Memory]      No past audit sessions — first-time analysis\x1b[0m");
+        console.log("\x1b[90m[🧠 Memory]      No sessions found (manifest + agent_nft) — first-time analysis\x1b[0m");
         return [];
       }
 
-      console.log(`\x1b[1;96m[🧠 Memory]      Loaded ${sessions.length} past audit sessions from Walrus:\x1b[0m`);
+      console.log(`\x1b[1;96m[🧠 Memory]      Loaded ${sessions.length} past audit sessions (manifest + agent_nft):\x1b[0m`);
 
       const results: string[] = [];
       for (let i = 0; i < sessions.length; i++) {
@@ -1015,7 +1048,7 @@ export class ReportEngine {
 
     const now = new Date().toISOString().replace("T", " ").slice(0, 19);
 
-    return `# WALRAXC Smart Contract Security Report
+    return `# WALRAXC Smart Contract or Module Security Report
 
 **Contract**: ${contractName}
 **Analysis Date**: ${now}
@@ -1792,15 +1825,23 @@ export class AgentCore {
   async analyze(contract: string, contractName: string): Promise<AnalysisResult> {
     console.log("\n\x1b[1;36m[WALRAXC]\x1b[0m           Phase 1: Starting autonomous security analysis...");
 
-    // Phase 0: Load memory from two sources
-    //   (A) Walrus manifest — recent sessions (last 30)
-    //   (B) agent_nft Merkle trail — ALL past blob IDs (long-term, on-chain)
-    const manifestMemory = await this.memory.retrieveSimilar(contract);
-    const nftMemory = await this.loadLongTermMemory();
-    const chainMemory = [...new Set([...manifestMemory, ...nftMemory])]; // dedupe
-    if (manifestMemory.length > 0) console.log(`\x1b[1;35m[Memory]\x1b[0m         Walrus manifest: ${manifestMemory.length} sessions`);
-    if (nftMemory.length > 0) console.log(`\x1b[1;35m[Memory]\x1b[0m         agent_nft trail:  ${nftMemory.length} sessions`);
-    if (chainMemory.length === 0) console.log(`\x1b[1;35m[Memory]\x1b[0m        No past sessions — first-time analysis`);
+    // Phase 0: Load memory from manifest + on-chain agent_nft trail (unified)
+    const nftBlobIds: string[] = [];
+    if (this.suiMove && this.agentNftId) {
+      try {
+        const entries = await this.suiMove.getAgentData(this.agentNftId);
+        for (const entry of entries) {
+          const id = new TextDecoder().decode(entry.hash).replace(/[^a-zA-Z0-9_-]/g, '');
+          if (id.length >= 10) nftBlobIds.push(id);
+        }
+      } catch {}
+    }
+    const chainMemory = await this.memory.retrieveSimilar(contract, nftBlobIds);
+    if (chainMemory.length > 0) {
+      console.log(`\x1b[1;35m[Memory]\x1b[0m        ${chainMemory.length} past audit sessions loaded (manifest + agent_nft)`);
+    } else {
+      console.log(`\x1b[1;35m[Memory]\x1b[0m        No past sessions — first-time analysis`);
+    }
     this.progress(`[Phase 0] Loaded ${chainMemory.length} past audit sessions (manifest + agent_nft)`);
     this.progress("[Phase 1] Starting autonomous security analysis...");
 
@@ -1820,6 +1861,7 @@ export class AgentCore {
     }
 
     // Phase 1: Execute all tools
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 2: Dispatching tools...");
     this.progress("[Phase 2] Dispatching analysis tools...");
     const rawSignals = await this.tools.executeAll(contract);
@@ -1827,6 +1869,7 @@ export class AgentCore {
     this.progress(`    Raw signals: ${rawSignals.length}`);
 
     // Phase 1.5: Signal Normalization
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 3: Normalizing tool signals...");
     this.progress("[Phase 3] Normalizing tool signals...");
     const toolSignals = SignalNormalizer.normalize([...rawSignals]);
@@ -1839,11 +1882,13 @@ export class AgentCore {
     }
 
     // Phase 2: Multi-agent reasoning
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 4: Multi-agent reasoning layer...");
     this.progress("[Phase 4] Multi-agent reasoning layer...");
     const agentVotes = this.createAgentVotes(toolSignals);
 
     // Phase 3: Consensus decision
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 5: Running consensus engine...");
     this.progress("[Phase 5] Running consensus engine...");
     const decision = ConsensusEngine.decide(agentVotes);
@@ -1852,6 +1897,7 @@ export class AgentCore {
     }
 
     // Phase 4: Intelligence scoring
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 6: Calculating risk intelligence score...");
     this.progress("[Phase 6] Calculating risk intelligence score...");
     const exploitSimilarity = 0.75;
@@ -1862,6 +1908,7 @@ export class AgentCore {
     this.progress(`    ├─ Risk: ${(intelligenceReport.riskScore * 100).toFixed(1)}%\n    ├─ Exploitability: ${(intelligenceReport.exploitabilityScore * 100).toFixed(1)}%\n    └─ Classification: ${intelligenceReport.finalClassification}`);
 
     // Phase 5: Attack simulation
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 7: Simulating attack execution path...");
     this.progress("[Phase 7] Simulating attack execution path...");
     const vulnerability = decision.primaryVulnerability ?? "Unknown";
@@ -1874,6 +1921,7 @@ export class AgentCore {
     this.progress(`    ├─ Execution: ${attackSimulation.executionPath.length} steps\n    ├─ Status: ${attackSimulation.exploitVerdict.status}\n    └─ Success: ${(attackSimulation.exploitVerdict.successProbability * 100).toFixed(0)}%`);
 
     // Phase 6: Graph construction
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 8: Constructing deterministic attack graph...");
     this.progress("[Phase 8] Constructing deterministic attack graph...");
     const attackGraph = GraphConstructionEngine.build(vulnerability);
@@ -1883,6 +1931,7 @@ export class AgentCore {
     this.progress(`    ├─ Nodes: ${attackGraph.nodes.length}\n    ├─ Edges: ${attackGraph.edges.length}\n    └─ Root: ${attackGraph.rootNode}`);
 
     // Phase 7: Consistency verification
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 9: Verifying simulation consistency...");
     this.progress("[Phase 9] Verifying simulation consistency...");
     const consistencyCheck = ConsistencyEngineVerifier.verify(toolSignals, attackSimulation, attackGraph);
@@ -1894,6 +1943,7 @@ export class AgentCore {
     this.progress(`    ├─ Score: ${(consistencyCheck.consistencyScore * 100).toFixed(0)}%\n    ├─ Simulation: ${consistencyCheck.simulationValid}\n    ├─ Graph: ${consistencyCheck.graphConsistent}\n    └─ State: ${consistencyCheck.stateCorrect}`);
 
     // Phase 8: Final decision
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 10: Making final decision (single authority)...");
     this.progress("[Phase 10] Making final decision...");
     const finalDecision = FinalDecisionEngine.decide(attackSimulation.confidenceEngine, intelligenceReport, consistencyCheck);
@@ -1904,6 +1954,7 @@ export class AgentCore {
     this.progress(`    ├─ Verdict: ${finalDecision.finalVerdict}\n    ├─ Confidence: ${(finalDecision.finalConfidence * 100).toFixed(0)}%\n    └─ Attack Prob: ${(finalDecision.finalAttackProbability * 100).toFixed(0)}%`);
 
     // Phase 9: Attestation
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 11: Generating verifiable attestation...");
     this.progress("[Phase 11] Generating verifiable attestation...");
     const attestation = AttestationEngine.attest(finalDecision, attackSimulation.replayInfo, attackGraph, attackSimulation, "");
@@ -1930,6 +1981,7 @@ export class AgentCore {
     const explanation = await this.generateExplanation(decision, toolSignals, contract, chainMemory);
 
     // Phase 12: Markdown report + Walrus blob
+    await sleep(1000);
     console.log("\x1b[1;36m[WALRAXC]\x1b[0m           Phase 12: Generating audit report...");
     this.progress("[Phase 13] Writing audit report & on-chain proof...");
     const markdown = ReportEngine.toMarkdown(decision, toolSignals, rawSignals, explanation, intelligenceReport, attackSimulation, attackGraph, consistencyCheck, finalDecision, attestation, contractName);
@@ -1988,6 +2040,7 @@ export class AgentCore {
       vulnerability_type: vulnType, risk_level: decision.riskLevel,
       confidence: Math.floor(decision.confidence * 100),
       explanation: explanation.slice(0, 500), report: filename,
+      report_blob_id: reportBlobId || null,
     });
 
     let summaryBlobId = "";
@@ -2020,7 +2073,7 @@ export class AgentCore {
           } catch {}
         } else {
           const dataHash = new TextEncoder().encode(summaryBlobId);
-          const desc = `Session: ${contractName} — ${vulnType} (${(decision.confidence * 100).toFixed(0)}%)`;
+          const desc = `Session: ${contractName} — ${vulnType} (${(decision.confidence * 100).toFixed(0)}%) | report:${reportBlobId || summaryBlobId}`;
           const nftTx = await this.suiMove.updateAgentIntelligence(
             this.agentNftId,
             desc,
@@ -2045,6 +2098,8 @@ export class AgentCore {
     if (reportBlobId) {
       console.log(`\x1b[1;35m\x1b[0m  Report Blob (task):   \x1b[92m${reportBlobId}\x1b[0m  ← audit_task on-chain`);
       console.log(`\x1b[1;35m\x1b[0m  Blob Explorer:        \x1b[94mhttps://walruscan.com/testnet/blob/${reportBlobId}\x1b[0m`);
+      const frontend = process.env["FRONTEND_URL"];
+      if (frontend) console.log(`\x1b[1;35m\x1b[0m  View Report:          \x1b[94m${frontend}/tx-report/${reportBlobId}\x1b[0m`);
     }
     if (summaryBlobId) {
       console.log(`\x1b[1;35m\x1b[0m  Memory Blob (agent):  \x1b[92m${summaryBlobId}\x1b[0m ← agent_nft Merkle trail`);
@@ -2166,4 +2221,10 @@ No additional findings. No new analysis. Pure explanation.`;
     }
     return votes;
   }
+}
+
+// ─── Utility ──────────────────────────────────────────────────────────────────
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise(r => setTimeout(r, ms));
 }
