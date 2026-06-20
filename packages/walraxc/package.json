@@ -1,0 +1,25 @@
+{
+  "name": "walraxc",
+  "version": "0.1.0",
+  "description": "Unified memory for AI security agents — long-context (Walrus+Sui) + RAG (MemWal) in one call",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "files": ["src", "README.md"],
+  "keywords": ["walrus", "memwal", "sui", "memory", "rag", "ai", "security"],
+  "license": "MIT",
+  "dependencies": {
+    "@walraxc/long-context-memory": "^0.1.0",
+    "@walraxc/memwal-rag": "^0.1.0",
+    "@walraxc/agent": "^0.1.0"
+  },
+  "peerDependencies": {
+    "@walraxc/long-context-memory": "*",
+    "@walraxc/memwal-rag": "*",
+    "@walraxc/agent": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
