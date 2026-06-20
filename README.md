@@ -11,6 +11,10 @@
 [![Next.js](https://img.shields.io/badge/frontend-Next.js-black)](./frontend)
 [![npm](https://img.shields.io/badge/npm-walraxc-CB3837)](https://www.npmjs.com/package/walraxc)
 
+## 📺 Demo
+
+[![WALRAXC Demo](https://img.youtube.com/vi/zmFDd0voKJo/maxresdefault.jpg)](https://youtu.be/zmFDd0voKJo)
+
 ---
 
 ## 📦 Install
@@ -134,15 +138,15 @@ The result? Every audit comes with a **replay ID** and **trace hash** that prove
 
 ## 🔗 Deployed Contracts — Sui Testnet (Walrus Track)
 
-| Contract | Address | Explorer |
-|----------|---------|----------|
-| **Package** | `0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694` | [SuiVision](https://testnet.suivision.xyz/object/0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694) |
-| **Agent NFT** | `0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d` | [SuiVision](https://testnet.suivision.xyz/object/0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d) |
-| **Audit Task** | `audit_task_8183` (ERC-8183) | `audit_task.move` |
-| **Agent NFT** | `agent_nft_7857` (ERC-7857) | `agent_nft.move` |
-| **WebSocket** | `wss://walraxc.fly.dev/ws` | Live API |
-| **Frontend** | `https://walraxc.vercel.app` | Live App |
-| **Walrus Blobs** | [Walruscan](https://walruscan.com) | All reports |
+| Contract | Address | Link |
+|----------|---------|------|
+| **Package** | `0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694` | [SuiVision →](https://testnet.suivision.xyz/object/0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694) |
+| **Agent NFT** | `0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d` | [SuiVision →](https://testnet.suivision.xyz/object/0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d) |
+| **WebSocket API** | `wss://walraxc.fly.dev/ws` | [Live →](wss://walraxc.fly.dev/ws) |
+| **Frontend** | `walraxc.vercel.app` | [Live →](https://walraxc.vercel.app) |
+| **Walrus Blobs** | Reports + Summaries | [Walruscan →](https://walruscan.com) |
+| **Sui Move Sources** | `audit_task_8183.move` | [Source →](./move/sources/audit_task_8183.move) |
+| **Agent NFT Sources** | `agent_nft_7857.move` | [Source →](./move/sources/agent_nft_7857.move) |
 
 > **RAG Knowledge Base**: The exploit vectors in MemWal are sourced from
 > [DeFiHackLabs](https://github.com/SunWeb3Sec/DeFiHackLabs) and
