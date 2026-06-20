@@ -9,7 +9,7 @@ const PLATFORMS = [
   {
     os: 'Build',
     sub: 'JS CLI + Rust binary · one-time',
-    cmd: 'pnpm install && pnpm build:all',
+    cmd: 'bun run setup',
     alt: 'builds dist/walraxc + prebuilt Rust binary',
     icon: '⚙️',
   },
@@ -146,15 +146,16 @@ export function DownloadSection() {
             Quick Start
           </div>
           {[
-            { prompt: '$ ', code: 'git clone https://github.com/JFKongphop/walraxc', color: 'var(--text-muted)' },
-            { prompt: '$ ', code: 'cd walraxc && pnpm install', color: 'var(--text-muted)' },
+            { prompt: '$ ', code: 'git clone https://github.com/JFKongphop/walraxc', color: 'var(--text)' },
+            { prompt: '$ ', code: 'cd walraxc && bun run setup', color: 'var(--green)' },
+            { prompt: '$ ', code: 'bun run audit', color: 'var(--cyan)' },
             { prompt: '$ ', code: './dist/walraxc run', color: 'var(--cyan)' },
             { prompt: '$ ', code: './dist/walraxc run --file MyContract.sol', color: 'var(--cyan)' },
             { prompt: '$ ', code: './dist/walraxc list', color: 'var(--cyan)' },
             { prompt: '$ ', code: './dist/walraxc show <report>', color: 'var(--cyan)' },
           ].map(({ prompt, code, color }, i) => (
-            <div key={i} style={{ marginBottom: 8, color: 'var(--text-muted)' }}>
-              <span style={{ color: 'var(--text-dim)' }}>{prompt}</span>
+            <div key={i} style={{ marginBottom: 8, color: 'var(--text)' }}>
+              <span style={{ color: 'var(--cyan)' }}>{prompt}</span>
               <span style={{ color }}>{code}</span>
             </div>
           ))}
