@@ -145,9 +145,9 @@ export function LiveTerminal() {
           case 'complete':
             setAnalyzing(false);
             addLine('', 'info');
-            addLine('╔══════════════════════════════════════════════════╗', 'banner');
-            addLine('║   AUTONOMOUS ENGINE — SOVEREIGN EXECUTION COMPLETE ║', 'banner');
-            addLine('╚══════════════════════════════════════════════════╝', 'banner');
+            addLine('╔═══════════════════════════════════════════════════════╗', 'banner');
+            addLine('║   AUTONOMOUS ENGINE — SOVEREIGN EXECUTION COMPLETE    ║', 'banner');
+            addLine('╚═══════════════════════════════════════════════════════╝', 'banner');
             addLine(`  Contract:        ${data.summary?.contract || '?'}`, 'info');
             addLine(`  Vulnerability:   ${data.summary?.vulnerability_found ? 'YES' : 'NO'}`, 'info');
             addLine(`  Risk Level:      ${data.summary?.risk_level || '?'}`, 'info');

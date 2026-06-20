@@ -102,8 +102,8 @@ export default function WalrusBlobPage() {
                 title="Raw blob on Walrus aggregator"
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '6px 14px', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 6, textDecoration: 'none', color: 'var(--text-dim)',
+                  padding: '6px 14px', border: '1px solid var(--cyan)',
+                  borderRadius: 6, textDecoration: 'none', color: 'var(--cyan)',
                   fontFamily: 'var(--font-mono)', fontSize: 10,
                 }}
               >
@@ -129,8 +129,8 @@ export default function WalrusBlobPage() {
                 title="Raw blob on Walrus aggregator"
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '6px 14px', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 6, textDecoration: 'none', color: 'var(--text-dim)',
+                  padding: '6px 14px', border: '1px solid var(--cyan)',
+                  borderRadius: 6, textDecoration: 'none', color: 'var(--cyan)',
                   fontFamily: 'var(--font-mono)', fontSize: 10,
                 }}
               >
