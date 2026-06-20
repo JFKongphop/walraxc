@@ -5,30 +5,66 @@ import { useRouter } from 'next/navigation';
 
 interface TerminalLine {
   text: string;
-  type: 'info' | 'progress' | 'banner' | 'phase' | 'explanation' | 'complete' | 'error' | 'input';
+  type: 'info' | 'progress' | 'banner' | 'phase' | 'explanation' | 'complete' | 'error' | 'input' | 'memory';
 }
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001/ws';
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'wss://walraxc.fly.dev/ws';
 
-const DEMO_CONTRACT = `// DeFiVault — built-in demo contract
-pragma solidity ^0.7.0;
+const DEMO_CONTRACT = `// DeFiVault — built-in demo contract (Sui Move)
+module vulnerable::defi_vault {
+    use sui::coin::{Self, Coin};
+    use sui::sui::SUI;
+    use sui::tx_context::{TxContext, sender};
+    use sui::transfer;
+    use sui::balance::{Self, Balance};
 
-contract DeFiVault {
-    mapping(address => uint256) public balances;
-    address[] public depositors;
-
-    function deposit() external payable {
-        balances[msg.sender] += msg.value;
-        depositors.push(msg.sender);
+    public struct Vault has key {
+        id: UID,
+        balances: vector<address>,
+        amounts: vector<u64>,
     }
 
-    // ❌ Reentrancy: external call before state update
-    function withdraw() external {
-        uint256 amount = balances[msg.sender];
-        require(amount > 0, "Nothing to withdraw");
-        (bool ok, ) = msg.sender.call{value: amount}("");
-        require(ok, "Transfer failed");
-        balances[msg.sender] = 0;
+    fun init(ctx: &mut TxContext) {
+        transfer::share_object(Vault {
+            id: object::new(ctx),
+            balances: vector[],
+            amounts: vector[],
+        });
+    }
+
+    public entry fun deposit(vault: &mut Vault, coin: Coin<SUI>, ctx: &mut TxContext) {
+        let amount = coin::value(&coin);
+        let depositor = sender(ctx);
+        let (found, idx) = find_index(&vault.balances, depositor);
+        if (found) {
+            vault.amounts[idx] = vault.amounts[idx] + amount;
+        } else {
+            vault.balances.push_back(depositor);
+            vault.amounts.push_back(amount);
+        };
+        // ❌ Coin destroyed — never transferred to vault balance
+        let _ = coin;
+    }
+
+    // ❌ Reentrancy-equivalent: no sender check, balance dropped
+    public entry fun withdraw(vault: &mut Vault, amount: u64, ctx: &mut TxContext) {
+        let withdrawer = sender(ctx);
+        let (found, idx) = find_index(&vault.balances, withdrawer);
+        assert!(found, 0);
+        assert!(vault.amounts[idx] >= amount, 1);
+        vault.amounts[idx] = vault.amounts[idx] - amount;
+        // ❌ Balance created but never transferred — funds trapped
+        let bal = balance::zero<SUI>();
+        balance::join(&mut bal, balance::create_for_testing(amount));
+    }
+
+    fun find_index(vec: &vector<address>, target: address): (bool, u64) {
+        let i = 0;
+        while (i < vec.length()) {
+            if (vec[i] == target) return (true, i);
+            i = i + 1;
+        };
+        (false, 0)
     }
 }`;
 
@@ -88,6 +124,19 @@ export function LiveTerminal() {
           case 'progress':
             addLine(data.text, 'progress');
             break;
+          case 'memory': {
+            const entries: Array<{ contract_name: string; vulnerability_type: string; risk_level: string; confidence: number }> = data.entries || [];
+            if (entries.length > 0) {
+              addLine('', 'info');
+              addLine(`[🧠 Memory] Loaded ${entries.length} past audit sessions:`, 'phase');
+              for (let i = 0; i < entries.length; i++) {
+                const e = entries[i];
+                addLine(`  [${i}] ${e.contract_name} — ${e.vulnerability_type} (${e.risk_level}, ${e.confidence}%)`, 'progress');
+              }
+              addLine('', 'info');
+            }
+            break;
+          }
           case 'explanation':
             addLine('', 'info');
             addLine('[🧠 LLM EXPLANATION]', 'phase');
