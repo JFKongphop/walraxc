@@ -47,6 +47,21 @@
         "typescript": "^5.7.3",
       },
     },
+    "packages/agent": {
+      "name": "@walraxc/agent",
+      "version": "0.1.0",
+      "dependencies": {
+        "@ai-sdk/openai": "^3.0.72",
+        "@mysten-incubation/memwal": "^0.0.7",
+        "@mysten/sui": "^1.15.0",
+        "ai": "^6.0.207",
+        "openai": "^4.87.3",
+        "zod": "^3.24.3",
+      },
+      "devDependencies": {
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/long-context-memory": {
       "name": "@walraxc/long-context-memory",
       "version": "0.1.0",
@@ -73,23 +88,25 @@
         "@mysten-incubation/memwal": "^0.0.7",
       },
     },
-    "packages/raxc-memory": {
+    "packages/walraxc": {
       "name": "walraxc",
       "version": "0.1.0",
       "dependencies": {
-        "@walraxc/long-context-memory": "workspace:*",
-        "@walraxc/memwal-rag": "workspace:*",
+        "@walraxc/agent": "^0.1.0",
+        "@walraxc/long-context-memory": "^0.1.0",
+        "@walraxc/memwal-rag": "^0.1.0",
       },
       "devDependencies": {
         "typescript": "^5.0.0",
       },
       "peerDependencies": {
+        "@walraxc/agent": "*",
         "@walraxc/long-context-memory": "*",
         "@walraxc/memwal-rag": "*",
       },
     },
     "packages/walrus-memory": {
-      "name": "@raxclaw/walrus-memory",
+      "name": "@walraxc/walrus-memory",
       "version": "0.1.0",
       "dependencies": {
         "@mysten-incubation/memwal": "^0.0.7",
@@ -207,8 +224,6 @@
 
     "@qdrant/openapi-typescript-fetch": ["@qdrant/openapi-typescript-fetch@1.2.6", "", {}, "sha512-oQG/FejNpItrxRHoyctYvT3rwGZOnK4jr3JdppO/c78ktDvkWiPXPHNsrDf33K9sZdRb6PR7gi4noIapu5q4HA=="],
 
-    "@raxclaw/walrus-memory": ["@raxclaw/walrus-memory@workspace:packages/walrus-memory"],
-
     "@scure/base": ["@scure/base@1.2.6", "", {}, "sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg=="],
 
     "@scure/bip32": ["@scure/bip32@1.7.0", "", { "dependencies": { "@noble/curves": "~1.9.0", "@noble/hashes": "~1.8.0", "@scure/base": "~1.2.5" } }, "sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw=="],
@@ -225,9 +240,13 @@
 
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
 
+    "@walraxc/agent": ["@walraxc/agent@workspace:packages/agent"],
+
     "@walraxc/long-context-memory": ["@walraxc/long-context-memory@workspace:packages/long-context-memory"],
 
     "@walraxc/memwal-rag": ["@walraxc/memwal-rag@workspace:packages/memwal-rag"],
+
+    "@walraxc/walrus-memory": ["@walraxc/walrus-memory@workspace:packages/walrus-memory"],
 
     "abitype": ["abitype@1.2.3", "", { "peerDependencies": { "typescript": ">=5.0.4", "zod": "^3.22.0 || ^4.0.0" }, "optionalPeers": ["typescript", "zod"] }, "sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg=="],
 
@@ -411,7 +430,7 @@
 
     "viem": ["viem@2.52.2", "", { "dependencies": { "@noble/curves": "1.9.1", "@noble/hashes": "1.8.0", "@scure/bip32": "1.7.0", "@scure/bip39": "1.6.0", "abitype": "1.2.3", "isows": "1.0.7", "ox": "0.14.29", "ws": "8.20.1" }, "peerDependencies": { "typescript": ">=5.0.4" }, "optionalPeers": ["typescript"] }, "sha512-HSU12p5aD/kAPZfrlbCUqdiP4P/c6hQ9AhfTS51VbLUQIjkWd1d5EjrCx/SCxZ0zhZVRn4Iv5X5WDqXPG8Ubew=="],
 
-    "walraxc": ["walraxc@workspace:packages/raxc-memory"],
+    "walraxc": ["walraxc@workspace:packages/walraxc"],
 
     "web-streams-polyfill": ["web-streams-polyfill@4.0.0-beta.3", "", {}, "sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug=="],
 

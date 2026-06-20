@@ -9,6 +9,43 @@
 [![Docker](https://img.shields.io/badge/deploy-Docker-2496ED)](./backend/Dockerfile)
 [![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1)](https://bun.sh)
 [![Next.js](https://img.shields.io/badge/frontend-Next.js-black)](./frontend)
+[![npm](https://img.shields.io/badge/npm-walraxc-CB3837)](https://www.npmjs.com/package/walraxc)
+
+---
+
+## 📦 Install
+
+```bash
+# Full CLI + agent
+npm i walraxc
+
+# Individual packages
+npm i @walraxc/agent              # 13-phase deterministic orchestrator
+npm i @walraxc/memwal-rag         # Semantic exploit pattern search via MemWal
+npm i @walraxc/long-context-memory # Persistent agent memory via Walrus + Sui
+npm i @walraxc/walrus-memory      # Verifiable RAG + persistent memory
+```
+
+```ts
+import { RaxcMemory } from "walraxc";
+import { AgentMemory } from "@walraxc/long-context-memory";
+import { ExploitRAG } from "@walraxc/memwal-rag";
+import { AgentCore } from "@walraxc/agent";
+
+// RAG: search 781 DeFi exploit patterns
+const rag = ExploitRAG.fromEnv();
+const matches = await rag.search("reentrancy external call");
+
+// Memory: recall 80+ past audit sessions
+const mem = AgentMemory.fromEnv();
+const sessions = await mem.recall();
+
+// Agent: run the full 13-phase pipeline
+const core = new AgentCore(walrus, compute);
+const result = await core.analyze(contract, "MyContract");
+```
+
+📖 **Full example**: [`packages/examples/all-packages.ts`](./packages/examples/all-packages.ts) — demonstrates RAG search, memory recall, 13-phase pipeline, on-chain proof, and unified context in one file.
 
 ---
 
@@ -90,10 +127,22 @@ The result? Every audit comes with a **replay ID** and **trace hash** that prove
 │   agent_nft  (ERC-7857)       │   │  raxc/defi-cases namespace      │
 │   Cryptographic verification  │   │  60+ session auto recall        │
 │                               │   │                                 │
-│   Package: 0x79db...          │   │  Walrus Testnet (blob storage)  │
-│   Agent NFT: 0x926b...        │   │  Reports + summaries + manifest │
+│   Package: 0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694 │   │  Walrus Testnet (blob storage)  │
+│   Agent NFT: 0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d │   │  Reports + summaries + manifest │
 └───────────────────────────────┘   └─────────────────────────────────┘
 ```
+
+## 🔗 Deployed Contracts — Sui Testnet (Walrus Track)
+
+| Contract | Address | Explorer |
+|----------|---------|----------|
+| **Package** | `0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694` | [SuiVision](https://testnet.suivision.xyz/object/0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694) |
+| **Agent NFT** | `0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d` | [SuiVision](https://testnet.suivision.xyz/object/0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d) |
+| **Audit Task** | `audit_task_8183` (ERC-8183) | `audit_task.move` |
+| **Agent NFT** | `agent_nft_7857` (ERC-7857) | `agent_nft.move` |
+| **WebSocket** | `wss://walraxc.fly.dev/ws` | Live API |
+| **Frontend** | `https://walraxc.vercel.app` | Live App |
+| **Walrus Blobs** | [Walruscan](https://walruscan.com) | All reports |
 
 > **RAG Knowledge Base**: The exploit vectors in MemWal are sourced from
 > [DeFiHackLabs](https://github.com/SunWeb3Sec/DeFiHackLabs) and
@@ -417,10 +466,12 @@ cp .env.example .env
 ### 2. Run Locally
 
 ```bash
-# Install deps
-bun install
+# One-command setup (install + build)
+bun run setup
 
-# Build CLI
+# Or step by step:
+cd backend && bun install && cd ..
+bun install
 node build.cjs
 
 # Standalone CLI analysis
@@ -481,7 +532,7 @@ wscat -c ws://localhost:3001/ws
 | **RAG Memory** | [MemWal](https://memwal.ai) — semantic search + auto recall/remember |
 | **Blob Storage** | [Walrus Testnet](https://walrus.xyz) — reports + summaries + manifest |
 | **Blockchain** | [Sui Testnet](https://sui.io) |
-| **Contracts** | Sui Move — `audit_task` (ERC-8183) + `agent_nft` (ERC-7857) |
+| **Contracts** | Sui Move — [`audit_task`](https://testnet.suivision.xyz/object/0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694) + [`agent_nft`](https://testnet.suivision.xyz/object/0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d) |
 | **On-chain client** | `@mysten/sui` v1.45 |
 | **Frontend** | [Next.js 14](https://nextjs.org) + React 18 |
 | **CLI** | [Ink](https://github.com/vadimdemedes/ink) (React for terminal) + esbuild |
@@ -500,10 +551,8 @@ MEMWAL_PRIVATE_KEY        # MemWal key
 MEMWAL_ACCOUNT_ID         # MemWal account
 MEMWAL_SERVER_URL         # MemWal relayer URL
 SUI_PRIVATE_KEY           # Sui wallet (bech32 suiprivkey...)
-SUI_PACKAGE_ID            # Deployed Move package
-SUI_TASK_REGISTRY_ID      # audit_task registry object
-SUI_NFT_REGISTRY_ID       # agent_nft registry object
-SUI_AGENT_NFT_ID          # Agent NFT object ID
+SUI_PACKAGE_ID=0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694
+SUI_AGENT_NFT_ID=0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d
 ```
 
 ---
