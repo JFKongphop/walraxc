@@ -127,8 +127,8 @@ The result? Every audit comes with a **replay ID** and **trace hash** that prove
 │   agent_nft  (ERC-7857)       │   │  raxc/defi-cases namespace      │
 │   Cryptographic verification  │   │  60+ session auto recall        │
 │                               │   │                                 │
-│   Package: 0x79db8cf1f78b8a262bd811ac4688aef5e903eefd8255c95aa1a3e273c46f1694 │   │  Walrus Testnet (blob storage)  │
-│   Agent NFT: 0x926b7fd348ad27b3d01efa71d7575569a1817a63cb324ac44f6ec6edae78bc0d │   │  Reports + summaries + manifest │
+│   Package: 0x79db...          │   │  Walrus Testnet (blob storage)  │
+│   Agent NFT: 0x926b...        │   │  Reports + summaries + manifest │
 └───────────────────────────────┘   └─────────────────────────────────┘
 ```
 
@@ -196,28 +196,28 @@ User pastes contract
         │
         ▼
 ┌──────────────────────────────────────────┐
-│  Phase 0: MemWal Recall                   │
+│  Phase 0: MemWal Recall                  │
 │  "Find top 5 similar past exploits"      │
 │  → raxc/defi-cases namespace             │
 └──────────────────┬───────────────────────┘
                    │ context injected into LLM prompt
                    ▼
 ┌──────────────────────────────────────────┐
-│  Phase 2-11: Analysis Pipeline            │
+│  Phase 2-11: Analysis Pipeline           │
 │  LLM + 8 tools analyze contract          │
-│  MemWal auto-remembers new findings       │
+│  MemWal auto-remembers new findings      │
 └──────────────────┬───────────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────────┐
-│  Phase 12: Walrus Blob (Report)           │
+│  Phase 12: Walrus Blob (Report)          │
 │  Full markdown → Walrus blob             │
 │  blobId → audit_task on Sui              │
 └──────────────────┬───────────────────────┘
                    │
                    ▼
 ┌──────────────────────────────────────────┐
-│  Phase 13: Walrus Blob (Summary)          │
+│  Phase 13: Walrus Blob (Summary)         │
 │  JSON metadata → Walrus blob             │
 │  blobId → agent_nft Merkle trail         │
 │  blobId → manifest (local cache)         │
