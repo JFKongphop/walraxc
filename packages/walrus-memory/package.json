@@ -1,0 +1,15 @@
+{
+  "name": "@walraxc/walrus-memory",
+  "version": "0.1.0",
+  "description": "Verifiable RAG + persistent memory for AI security agents, powered by Walrus",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "files": ["src", "README.md"],
+  "keywords": ["walrus", "memwal", "ai", "security", "rag", "agent", "sui", "defi"],
+  "dependencies": {
+    "@mysten-incubation/memwal": "^0.0.7"
+  }
+}
