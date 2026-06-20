@@ -4,6 +4,7 @@ WALRAXC WebSocket Server — real-time exploit intelligence over WebSocket.
 Connect: ws://localhost:3001/ws
 Send a JSON message to trigger analysis:
   { "contract": "pragma solidity ^0.8.0; contract Foo { ... }" }
+  { "contract": "module hacker::exploit { ... }" }          ← Sui Move
 
 The server streams phase-by-phase progress then sends the final result,
 mirroring the terminal output of the CLI example.
@@ -75,12 +76,26 @@ async function runAnalysis(
   core.tools.register(new MemoryTool(core.memory));
   send({ type: "info", text: "[✓] 8 analysis tools registered" });
 
-  // Extract contract name
-  const words = contractCode.split(/\s+/);
-  const contractIdx = words.findIndex((w) => w === "contract");
-  const contractName = contractIdx !== -1
-    ? (words[contractIdx + 1] ?? "Contract").replace(/[^a-zA-Z0-9_]/g, "")
-    : "Contract";
+  // Extract contract/module name (Solidity or Move)
+  // Strip comments first to avoid false matches on // contract / // module in comments
+  const codeLines = contractCode.split('\n')
+    .filter((l) => !l.trimStart().startsWith('//') && !l.trimStart().startsWith('/*') && !l.trimStart().startsWith('*'));
+  const cleanCode = codeLines.join(' ');
+  const words = cleanCode.split(/\s+/);
+  let contractName = "Contract";
+  // Try Move first: "module addr::name" or "module name::sub"
+  const moduleIdx = words.findIndex((w) => w === "module");
+  if (moduleIdx !== -1) {
+    const raw = words[moduleIdx + 1] ?? "unknown";
+    contractName = raw.split("::").pop()?.replace(/[^a-zA-Z0-9_]/g, "") || raw;
+  }
+  // Try Solidity: "contract Foo" (only if no module found)
+  if (contractName === "Contract") {
+    const contractIdx = words.findIndex((w) => w === "contract");
+    if (contractIdx !== -1) {
+      contractName = (words[contractIdx + 1] ?? "Contract").replace(/[^a-zA-Z0-9_]/g, "");
+    }
+  }
 
   send({ type: "info", text: `[*] Analyzing contract: ${contractName}` });
   send({
@@ -166,7 +181,11 @@ async function runAnalysis(
   if (result.taskId) send({ type: "info", text: `  Audit Task #:         ${result.taskId}` });
   if (result.createTaskTx) send({ type: "info", text: `  CreateTask TX:        https://testnet.suivision.xyz/txblock/${result.createTaskTx}` });
   if (result.finalizeTaskTx) send({ type: "info", text: `  FinalizeTask TX:      https://testnet.suivision.xyz/txblock/${result.finalizeTaskTx}` });
-  if (result.reportBlobId) send({ type: "info", text: `  Report Blob (task):   https://walruscan.com/testnet/blob/${result.reportBlobId}  ← audit_task` });
+  if (result.reportBlobId) {
+    send({ type: "info", text: `  Report Blob (task):   https://walruscan.com/testnet/blob/${result.reportBlobId}  ← audit_task` });
+    const frontend = process.env["FRONTEND_URL"];
+    if (frontend) send({ type: "info", text: `  View Report:          ${frontend}/tx-report/${result.reportBlobId}` });
+  }
   if (result.summaryBlobId) send({ type: "info", text: `  Memory Blob (agent):  https://walruscan.com/testnet/blob/${result.summaryBlobId}  ← agent_nft` });
   if (result.agentNftId) send({ type: "info", text: `  Agent NFT ID:         ${result.agentNftId}` });
 
@@ -205,9 +224,9 @@ function sleep(ms: number): Promise<void> {
 const port = parseInt(process.env["WS_PORT"] ?? "3001", 10);
 
 console.log("\n╔══════════════════════════════════════════════════════════════╗");
-console.log("║   WALRAXC WebSocket Server (TypeScript)                         ║");
-console.log(`║   ws://0.0.0.0:${port}                                          ║`);
-console.log('║   Send: {"contract": "pragma solidity ..."}                  ║');
+console.log("║             WALRAXC WebSocket Server (TypeScript)            ║");
+console.log(`║                       ws://0.0.0.0:${port}                      ║`);
+console.log('║        Send: {"contract": "<Solidity or Move code>"}         ║');
 console.log("╚══════════════════════════════════════════════════════════════╝\n");
 
 const app = new Hono();
@@ -224,13 +243,13 @@ app.get(
       ws.send(
         JSON.stringify({
           type: "banner",
-          text: "╔══════════════════════════════════════════════════════════════════════════╗\n║         WALRAXC Autonomous Exploit Intelligence Core — WebSocket API        ║\n║         Deterministic Exploit Execution + Verification Framework         ║\n╚══════════════════════════════════════════════════════════════════════════╝",
+          text: "╔══════════════════════════════════════════════════════════════════════════╗\n║         WALRAXC Autonomous Exploit Intelligence Core — WebSocket API     ║\n║         Deterministic Exploit Execution + Verification Framework         ║\n╚══════════════════════════════════════════════════════════════════════════╝",
         }),
       );
       ws.send(
         JSON.stringify({
           type: "info",
-          text: 'Send a JSON message: {"contract": "pragma solidity ^0.8.0; ..."}',
+          text: 'Start auditing...',
         }),
       );
     },
