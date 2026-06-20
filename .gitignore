@@ -1,9 +1,4 @@
 .DS_Store
-build/
-.sui/
-node_modules/
+node_modules
 .env
-*.swp
-*.swo
-*~
 reports
