@@ -22,8 +22,7 @@ import {
   ReflectionTool,
   MemoryTool,
 } from "../src/index.ts";
-import { writeFileSync, mkdirSync } from "fs";
-import fs from "fs";
+import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import path from "path";
 
 // ─── Default demo contract with intentional vulnerabilities ──────────────────
@@ -59,7 +58,7 @@ async function main(): Promise<void> {
     "\x1b[1;96m╔══════════════════════════════════════════════════════════════════════════╗\x1b[0m",
   );
   console.log(
-    "\x1b[1;96m║\x1b[0m  \x1b[1;96mWALRAXC Autonomous Exploit Intelligence Core — Sovereign Execution Mode\x1b[0m    \x1b[1;96m║\x1b[0m",
+    "\x1b[1;96m║\x1b[0m  \x1b[1;96mWALRAXC Autonomous Exploit Intelligence Core — Sovereign Execution Mode\x1b[0m \x1b[1;96m║\x1b[0m",
   );
   console.log(
     "\x1b[1;96m║\x1b[0m         \x1b[2mDeterministic Exploit Execution + Verification Framework\x1b[0m         \x1b[1;96m║\x1b[0m",
@@ -101,17 +100,31 @@ async function main(): Promise<void> {
   core.tools.register(new MemoryTool(core.memory));
 
   // ─── Load contract ─────────────────────────────────────────────────────────
-  let contractCode: string;
-  let contractName: string;
+  let contractCode: string = DEFAULT_CONTRACT;
+  let contractName: string = "DeFiVault";
 
   if (process.env["WALRAXC_CONTRACT_CODE"]) {
     contractCode = process.env["WALRAXC_CONTRACT_CODE"];
-    const words = contractCode.split(/\s+/);
-    const contractIdx = words.findIndex((w) => w === "contract");
-    contractName =
-      contractIdx !== -1
-        ? (words[contractIdx + 1] ?? "Contract").replace(/[^a-zA-Z0-9_]/g, "")
-        : "Contract";
+    // Strip comments before searching for keywords
+    const codeLines = contractCode.split('\n')
+      .filter((l) => !l.trimStart().startsWith('//') && !l.trimStart().startsWith('/*') && !l.trimStart().startsWith('*'));
+    const cleanCode = codeLines.join(' ');
+    const words = cleanCode.split(/\s+/);
+    let contractName = "Contract";
+    // Try Move first
+    const moduleIdx = words.findIndex((w) => w === "module");
+    if (moduleIdx !== -1) {
+      const raw = words[moduleIdx + 1] ?? "unknown";
+      contractName = raw.split("::").pop()?.replace(/[^a-zA-Z0-9_]/g, "") || raw;
+    }
+    // Fall back to Solidity
+    if (contractName === "Contract") {
+      const contractIdx = words.findIndex((w) => w === "contract");
+      contractName =
+        contractIdx !== -1
+          ? (words[contractIdx + 1] ?? "Contract").replace(/[^a-zA-Z0-9_]/g, "")
+          : "Contract";
+    }
     console.log(
       `\x1b[33m[*]\x1b[0m Analyzing inline contract: \x1b[97m${contractName}\x1b[0m`,
     );
@@ -120,7 +133,7 @@ async function main(): Promise<void> {
     console.log(
       `\x1b[33m[*]\x1b[0m Loading contract from: \x1b[97m${filePath}\x1b[0m`,
     );
-    contractCode = fs.readFileSync(filePath, "utf-8");
+    contractCode = readFileSync(filePath, "utf-8");
     contractName =
       path.basename(filePath, path.extname(filePath)) || "Contract";
   } else {
@@ -138,9 +151,9 @@ async function main(): Promise<void> {
   const result = await core.analyze(contractCode, contractName);
 
   // Report already saved by AgentCore to ../reports/
-  const reportsDir = new URL("../../reports/", import.meta.url).pathname;
+  const reportsDir = path.resolve(process.cwd(), "reports");
   mkdirSync(reportsDir, { recursive: true });
-  writeFileSync(`${reportsDir}${result.filename}`, result.markdown);
+  writeFileSync(path.join(reportsDir, result.filename), result.markdown);
   console.log(`\n\x1b[92m✅ Report saved to: reports/${result.filename}\x1b[0m\n`);
 
   console.log(
@@ -256,6 +269,10 @@ async function main(): Promise<void> {
       `\x1b[1;35m\x1b[0m  Mint NFT TX:        \x1b[94mhttps://testnet.suivision.xyz/txblock/${(result as any).mintedNftTx}\x1b[0m`,
     );
   }
+  const frontend = process.env["FRONTEND_URL"];
+  if (frontend) console.log(
+    `\x1b[1;35m\x1b[0m  View Report:          \x1b[94m${frontend}/tx-report/${(result as any).reportBlobId}\x1b[0m`,
+  );
 
   console.log(
     "\x1b[36m╔══════════════════════════════════════════════════════════════════════════╗\x1b[0m",
