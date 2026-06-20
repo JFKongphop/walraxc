@@ -1,0 +1,23 @@
+{
+  "name": "@walraxc/long-context-memory",
+  "version": "0.1.0",
+  "description": "Persistent agent memory via Walrus blobs + Sui Move agent_nft Merkle trail",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": ["src", "README.md"],
+  "keywords": ["walrus", "sui", "memory", "agent", "merkle", "blob", "ai"],
+  "license": "MIT",
+  "dependencies": {
+    "@mysten/sui": "^1.45.2"
+  },
+  "peerDependencies": {
+    "@mysten/sui": "^1.45.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
