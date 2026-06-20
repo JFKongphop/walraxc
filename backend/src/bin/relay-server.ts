@@ -31,7 +31,7 @@ function getMemWal() {
       key: MEMWAL_KEY,
       accountId: MEMWAL_ACCOUNT,
       serverUrl: MEMWAL_SERVER,
-      namespace: "walraxc/defi-cases",
+      namespace: "raxc/defi-cases",
     });
   }
   return _memwal;
@@ -39,7 +39,7 @@ function getMemWal() {
 
 // ═══ Routes ═══════════════════════════════════════════════════════════════════
 
-app.get("/v1/health", (c) => c.json({ status: "ok", db: "walraxc/defi-cases" }));
+app.get("/v1/health", (c) => c.json({ status: "ok", db: "raxc/defi-cases" }));
 
 app.post("/v1/recall", async (c) => {
   const body = await c.req.json().catch(() => ({}));
