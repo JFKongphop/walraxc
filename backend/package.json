@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "install:deps": "bun install",
     "build": "tsc",
     "start:server": "bun run src/bin/ws-server.ts",
     "start:client": "bun run src/bin/ws-client.ts",
