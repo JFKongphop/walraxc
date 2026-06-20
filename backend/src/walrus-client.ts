@@ -94,19 +94,37 @@ export class WalrusClient {
     return this.saveAuditSummary(summaryJson);
   }
 
-  /** Load sessions from Walrus. Uses manifest blob tracked in local file. */
-  async loadSessions(limit = 30): Promise<any[]> {
-    // Track manifest blob ID in local file (Walrus has no naming)
+  /** Load sessions from Walrus manifest + optional agent_nft trail blob IDs. */
+  async loadSessions(limit = 30, nftTrailBlobIds: string[] = []): Promise<any[]> {
+    const sessions: any[] = [];
+    const seen = new Set<string>();
+
+    // 1. Load from manifest (local cache)
     try {
       const manifestId = require("fs").readFileSync(".raxc-manifest", "utf-8").trim();
       const text = await this.getReport(manifestId);
       const ids: string[] = JSON.parse(text);
-      const sessions: any[] = [];
       for (const id of ids.slice(-limit)) {
-        try { sessions.push(JSON.parse(await this.getReport(id))); } catch {}
+        if (seen.has(id)) continue;
+        seen.add(id);
+        try {
+          const parsed = JSON.parse(await this.getReport(id));
+          sessions.push(parsed);
+        } catch {}
       }
-      return sessions;
-    } catch { return []; }
+    } catch { /* manifest missing — fall through to nft trail */ }
+
+    // 2. Load from agent_nft trail (on-chain, all-time)
+    for (const id of nftTrailBlobIds) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      try {
+        const parsed = JSON.parse(await this.getReport(id));
+        sessions.push(parsed);
+      } catch {}
+    }
+
+    return sessions;
   }
 
   /** Append session blob ID to manifest. */
