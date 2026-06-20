@@ -11,7 +11,7 @@ Usage:
 
 import * as fs from "fs";
 
-const WS_URL = process.env["WS_URL"] ?? "wss://raxclaw-mantle.fly.dev/ws";
+const WS_URL = process.env["WS_URL"] ?? "wss://walraxc.fly.dev/ws";
 const DEFAULT_CONTRACT = `pragma solidity ^0.7.0;
 
 contract DeFiVault {
@@ -98,6 +98,17 @@ async function main(): Promise<void> {
             console.log(`  \x1b[2m${line}\x1b[0m`);
           }
           break;
+        case "memory": {
+          const entries = data.entries as Array<Record<string, unknown>> | undefined;
+          if (entries && entries.length > 0) {
+            console.log(`\n\x1b[1;96m[🧠 Memory]      Loaded ${entries.length} past audit sessions:\x1b[0m`);
+            for (let i = 0; i < entries.length; i++) {
+              const e = entries[i];
+              console.log(`\x1b[36m    [${i}] ${e.contract_name ?? "?"} — ${e.vulnerability_type ?? "?"} (${e.risk_level ?? "?"}, ${e.confidence ?? 0}%)\x1b[0m`);
+            }
+          }
+          break;
+        }
         case "explanation":
           console.log("\n\x1b[1;35m[🧠 LLM EXPLANATION]\x1b[0m");
           console.log(data.text ?? "");

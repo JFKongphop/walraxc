@@ -111,6 +111,12 @@ async function runAnalysis(
   // Run the full pipeline
   const result = await core.analyze(contractCode, contractName);
 
+  // ─── Send memory/agent history to client ────────────────────────────────
+  const sessions = core.memory.getCachedSessions();
+  if (sessions.length > 0) {
+    send({ type: "memory", entries: sessions });
+  }
+
   // ─── Stream results ─────────────────────────────────────────────────────
 
   // Header box

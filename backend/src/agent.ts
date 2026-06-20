@@ -950,6 +950,14 @@ export class MemoryLayer {
     }
   }
 
+  /** Return parsed session objects from cache (populated by retrieveSimilar). */
+  getCachedSessions(): Array<{ contract_name: string; vulnerability_type: string; risk_level: string; confidence: number }> {
+    if (!this.cache) return [];
+    return this.cache.map((s) => {
+      try { return JSON.parse(s); } catch { return { contract_name: "?", vulnerability_type: "?", risk_level: "?", confidence: 0 }; }
+    });
+  }
+
   async retrieveSimilar(contract: string, nftTrailBlobIds: string[] = []): Promise<string[]> {
     if (this.cache !== null) return this.cache;
 
