@@ -1,0 +1,29 @@
+{
+  "name": "@walraxc/agent",
+  "version": "0.1.0",
+  "description": "WALRAXC 13-phase deterministic audit orchestrator — multi-agent security analysis engine",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tools": "./src/tools.ts",
+    "./sui-client": "./src/sui-client.ts",
+    "./walrus-client": "./src/walrus-client.ts",
+    "./openai-client": "./src/openai-withmemwal-client.ts"
+  },
+  "files": ["src", "README.md"],
+  "keywords": ["walrus", "memwal", "sui", "audit", "security", "agent", "orchestrator", "multi-agent"],
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.72",
+    "@mysten-incubation/memwal": "^0.0.7",
+    "@mysten/sui": "^1.15.0",
+    "ai": "^6.0.207",
+    "openai": "^4.87.3",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
