@@ -94,6 +94,8 @@ export async function analyzeMemWal(
   contract: string,
 ): Promise<string> {
   console.log("[WalraxcAnalyzer]   Recalling exploit patterns from MemWal (raxc/defi-cases)...");
+  // Small random stagger to prevent parallel MemWal collision
+  await new Promise((r) => setTimeout(r, Math.random() * 200));
   let topMatches: RagResult[] = [];
   let retries = 2;
   while (retries-- > 0) {
@@ -103,12 +105,14 @@ export async function analyzeMemWal(
     } catch (e: any) {
       const isRetryable = e?.code === "ABORT_ERR" || e?.status === 502 || e?.message?.includes("502") || e?.message?.includes("failed to respond");
       if (isRetryable && retries > 0) {
-        const delay = 300 + Math.random() * 700; // jitter: 300-1000ms
+        const delay = 300 + Math.random() * 700;
         console.log(`[WalraxcAnalyzer]   MemWal busy, retrying in ${Math.round(delay)}ms (${retries} left)...`);
         await new Promise((r) => setTimeout(r, delay));
         continue;
       }
-      throw e;
+      // ⚠️ MemWal unavailable — skip gracefully, don't crash the pipeline
+      console.log(`[WalraxcAnalyzer]   ⚠️ MemWal unavailable, skipping RAG (pipeline continues)`);
+      return "⚠️ MEMWAL UNAVAILABLE\nRAG analysis skipped — pipeline continues with remaining tools.";
     }
   }
   console.log(`[WalraxcAnalyzer]   Top ${topMatches.length} matches recalled`);
