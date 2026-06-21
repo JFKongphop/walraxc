@@ -11,6 +11,10 @@
 [![Next.js](https://img.shields.io/badge/frontend-Next.js-black)](./frontend)
 [![npm](https://img.shields.io/badge/npm-walraxc-CB3837)](https://www.npmjs.com/package/walraxc)
 
+## 🏗️ Architecture
+
+![WALRAXC Architecture](./architect.png)
+
 ## 📺 Demo
 
 [![WALRAXC Demo](https://img.youtube.com/vi/zmFDd0voKJo/maxresdefault.jpg)](https://youtu.be/zmFDd0voKJo)
