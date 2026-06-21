@@ -94,7 +94,23 @@ export async function analyzeMemWal(
   contract: string,
 ): Promise<string> {
   console.log("[WalraxcAnalyzer]   Recalling exploit patterns from MemWal (raxc/defi-cases)...");
-  const topMatches = await walrus.recallRag(contract, TOP_K);
+  let topMatches: RagResult[] = [];
+  let retries = 2;
+  while (retries-- > 0) {
+    try {
+      topMatches = await walrus.recallRag(contract, TOP_K);
+      break;
+    } catch (e: any) {
+      const isRetryable = e?.code === "ABORT_ERR" || e?.status === 502 || e?.message?.includes("502") || e?.message?.includes("failed to respond");
+      if (isRetryable && retries > 0) {
+        const delay = 300 + Math.random() * 700; // jitter: 300-1000ms
+        console.log(`[WalraxcAnalyzer]   MemWal busy, retrying in ${Math.round(delay)}ms (${retries} left)...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw e;
+    }
+  }
   console.log(`[WalraxcAnalyzer]   Top ${topMatches.length} matches recalled`);
 
   if (topMatches.length === 0) {
