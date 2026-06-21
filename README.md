@@ -1,6 +1,6 @@
 # WALRAXC — Autonomous Exploit Intelligence Core
 
-> **A deterministic multi-agent orchestrator that scans smart contracts for vulnerabilities, simulates attacks, cryptographically proves every result, and writes immutable audit reports on-chain via Sui Move. Persistent memory via Walrus + MemWal. No LLM override. No hallucinations. Verifiable forever.**
+> **Autonomous security intelligence powered by MemWal, Walrus, and Sui. Persistent memory, consensus-based reasoning, cryptographic attestation, and verifiable audit artifacts for smart contract security.**
 
 [![TypeScript](https://img.shields.io/badge/backend-TypeScript-blue)](./backend)
 [![Sui Move](https://img.shields.io/badge/contracts-Sui_Move-6fbcf0)](./move)
