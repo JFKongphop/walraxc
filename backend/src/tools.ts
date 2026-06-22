@@ -93,8 +93,41 @@ export class PatternDetectorTool implements Tool {
     let vulnerabilityType: string | null = null;
     let severity: string | null = null;
 
-    // Reentrancy patterns
-    if (contract.includes(".call{value:") || contract.includes(".call(")) {
+    const isMove = contract.includes("module ") || contract.includes("use sui::") || contract.includes("public entry fun");
+
+    // ── Move-specific patterns ──────────────────────────────────────────
+    if (isMove) {
+      // Coin destroyed / not transferred
+      if ((contract.includes("let _ = coin") || contract.includes("let _ = coin;")) && contract.includes("Coin<")) {
+        patterns.push("🚨 Move: Coin destroyed — deposited funds never transferred to vault balance");
+        vulnerabilityType = "Access Control";
+        severity = "High";
+      }
+      // Balance created but never transferred (trapped funds)
+      if (contract.includes("balance::zero") && contract.includes("balance::join") && !contract.includes("transfer::public_transfer") && !contract.includes("transfer::transfer")) {
+        patterns.push("🚨 Move: Balance created but never transferred — funds permanently trapped");
+        if (!vulnerabilityType) { vulnerabilityType = "Reentrancy"; severity = "High"; }
+      }
+      // Missing access control on sensitive functions
+      if ((contract.includes("public entry fun set_fee") || contract.includes("public entry fun drain")) && !contract.includes("assert!(sender") && !contract.includes("assert!(ctx.sender")) {
+        patterns.push("🚨 Move: No access control — anyone can call admin-sensitive function");
+        if (!vulnerabilityType) { vulnerabilityType = "Access Control"; severity = "Critical"; }
+      }
+      // Shared object without access control
+      if (contract.includes("transfer::share_object") && !contract.includes("AdminCap") && !contract.includes("assert!(sender")) {
+        patterns.push("⚠️ Move: Shared object created without AdminCap — no ownership gating");
+        if (!vulnerabilityType) { vulnerabilityType = "Access Control"; severity = "Medium"; }
+      }
+      // Drain function without permission check
+      if (contract.includes("public entry fun drain") && !contract.includes("assert!(")) {
+        patterns.push("🚨 Move: Unprotected drain function — anyone can steal all funds");
+        vulnerabilityType = "Access Control";
+        severity = "Critical";
+      }
+    }
+
+    // ── Solidity patterns ───────────────────────────────────────────────
+    if (!isMove) {
       const idx = contract.indexOf(".call");
       if (idx !== -1) {
         const before = contract.slice(0, idx);
